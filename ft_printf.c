@@ -1,3 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_printf.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ikalkan <ikalkan@student.42kocaeli.com.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/30 17:15:52 by ikalkan           #+#    #+#             */
+/*   Updated: 2025/06/30 17:25:04 by ikalkan          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+
 #include "ft_printf.h"
 
 static int	handle_format(const char *format, va_list args, int *count)
@@ -26,11 +39,28 @@ static int	handle_format(const char *format, va_list args, int *count)
 	return (ret);
 }
 
+int	handle_percent(const char **format, va_list args, int *count)
+{
+	int	ret;
+
+	(*format)++;
+	if (!**format)
+	{
+		if (ft_putchar('%', count) == -1)
+			return (-1);
+		return (0);
+	}
+	ret = handle_format(*format, args, count);
+	if (ret == -1)
+		return (-1);
+	(*format)++;
+	return (0);
+}
+
 int	ft_printf(const char *format, ...)
 {
 	va_list	args;
 	int		count;
-	int		ret;
 
 	va_start(args, format);
 	count = 0;
@@ -38,25 +68,14 @@ int	ft_printf(const char *format, ...)
 	{
 		if (*format == '%')
 		{
-			format++;
-			if (!*format)
-			{
-				if (ft_putchar('%', &count) == -1)
-					return (va_end(args), -1);
-				break;
-			}
-			ret = handle_format(format, args, &count);
-			if (ret == -1)
+			if (handle_percent(&format, args, &count) == -1)
 				return (va_end(args), -1);
-			format++;
 		}
-		else
-		{
-			if (ft_putchar(*format, &count) == -1)
-				return (va_end(args), -1);
-			format++;
-		}
+		else if (ft_putchar(*format++, &count) == -1)
+			return (va_end(args), -1);
 	}
 	va_end(args);
 	return (count);
 }
+
+
