@@ -6,10 +6,9 @@
 /*   By: ikalkan <ikalkan@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/30 17:15:52 by ikalkan           #+#    #+#             */
-/*   Updated: 2025/06/30 17:25:04 by ikalkan          ###   ########.fr       */
+/*   Updated: 2025/07/03 14:37:54 by ikalkan          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "ft_printf.h"
 
@@ -35,21 +34,17 @@ static int	handle_format(const char *format, va_list args, int *count)
 	else if (*format == '%')
 		ret = ft_putchar('%', count);
 	else
-		ret = ft_putchar(*format, count);
+		return (-1);
 	return (ret);
 }
 
-int	handle_percent(const char **format, va_list args, int *count)
+static int	handle_percent(const char **format, va_list args, int *count)
 {
 	int	ret;
 
 	(*format)++;
 	if (!**format)
-	{
-		if (ft_putchar('%', count) == -1)
-			return (-1);
-		return (0);
-	}
+		return (-1);
 	ret = handle_format(*format, args, count);
 	if (ret == -1)
 		return (-1);
@@ -62,6 +57,8 @@ int	ft_printf(const char *format, ...)
 	va_list	args;
 	int		count;
 
+	if (!format)
+		return (-1);
 	va_start(args, format);
 	count = 0;
 	while (*format)
@@ -69,13 +66,17 @@ int	ft_printf(const char *format, ...)
 		if (*format == '%')
 		{
 			if (handle_percent(&format, args, &count) == -1)
-				return (va_end(args), -1);
+			{
+				va_end(args);
+				return (-1);
+			}
 		}
 		else if (ft_putchar(*format++, &count) == -1)
-			return (va_end(args), -1);
+		{
+			va_end(args);
+			return (-1);
+		}
 	}
 	va_end(args);
 	return (count);
 }
-
-
